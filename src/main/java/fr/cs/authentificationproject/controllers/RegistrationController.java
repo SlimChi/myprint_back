@@ -1,6 +1,7 @@
 package fr.cs.authentificationproject.controllers;
 
 
+import fr.cs.authentificationproject.auth.AuthenticationRequest;
 import fr.cs.authentificationproject.auth.AuthenticationResponse;
 import fr.cs.authentificationproject.dto.UserDto;
 import fr.cs.authentificationproject.services.implement.ResgistrationServiceilmp;
@@ -30,6 +31,12 @@ public class RegistrationController {
 
         return ResponseEntity.ok(userService.registerUser(user));
 
+    }
+
+    @PostMapping("/Sign-in")
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest user) {
+
+        return ResponseEntity.ok(userService.authenticate(user));
     }
 
     @GetMapping(path = "confirm")

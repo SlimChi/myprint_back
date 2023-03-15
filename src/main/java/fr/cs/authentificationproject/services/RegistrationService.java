@@ -1,5 +1,6 @@
 package fr.cs.authentificationproject.services;
 
+import fr.cs.authentificationproject.auth.AuthenticationRequest;
 import fr.cs.authentificationproject.auth.AuthenticationResponse;
 import fr.cs.authentificationproject.dto.UserDto;
 import jakarta.transaction.Transactional;
@@ -14,4 +15,6 @@ public interface RegistrationService {
 
     @Transactional
     AuthenticationResponse registerUser(UserDto request);
+
+    AuthenticationResponse authenticate(AuthenticationRequest request);
 }

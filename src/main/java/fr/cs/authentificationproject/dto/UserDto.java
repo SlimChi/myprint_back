@@ -42,7 +42,7 @@ public class UserDto {
     @NotBlank(message = "Le mot de passe ne doit pas être vide")
     @Size(min = 8, max = 16, message = "Le mot de passe doit être entre 8 et 16 caracteres")
     private String password;
-
+    private Boolean enabled = false;
 
     private Role roles;
     private List<Adresse> adresse;
@@ -58,6 +58,7 @@ public class UserDto {
                 .email(user.getEmail())
                 .roles(user.getRole())
                 .adresse(user.getAdresse())
+                .enabled(user.isEnabled())
                 .build();
     }
 

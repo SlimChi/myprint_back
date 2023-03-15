@@ -1,9 +1,9 @@
 package fr.cs.authentificationproject.services.implement;
 
+import fr.cs.authentificationproject.auth.AuthenticationRequest;
 import fr.cs.authentificationproject.auth.AuthenticationResponse;
 import fr.cs.authentificationproject.config.JwtService;
 import fr.cs.authentificationproject.dto.UserDto;
-import fr.cs.authentificationproject.entities.EmailMessage;
 import fr.cs.authentificationproject.entities.Role;
 import fr.cs.authentificationproject.repositories.UserRepository;
 import fr.cs.authentificationproject.services.EmailSendService;
@@ -12,6 +12,8 @@ import fr.cs.authentificationproject.token.ConfirmationToken;
 import fr.cs.authentificationproject.token.ConfirmationTokenService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +35,7 @@ public class ResgistrationServiceilmp implements RegistrationService {
     private final ConfirmationTokenService confirmationTokenService;
     private final UserServiceImp userServiceImp;
     private final EmailSendService emailSendService;
+    private final AuthenticationManager authenticationManager;
 
     @Override
     @Transactional
@@ -40,10 +43,27 @@ public class ResgistrationServiceilmp implements RegistrationService {
 //        validator.validate(request);
 
 
-        var user = UserDto.toEntity(request).builder().firstName(request.getFirstName()).lastName(request.getLastName()).email(request.getEmail()).password(passwordEncoder.encode(request.getPassword())).role(new Role(1, "ADMIN")).build();
+        var user = UserDto.toEntity(request).builder()
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(new Role(1, "ADMIN"))
+                .build();
+
         userRepository.save(user);
 
         var savedUser = userRepository.save(user);
+
+        String token = UUID.randomUUID().toString();
+        ConfirmationToken confirmationToken = new ConfirmationToken(token, LocalDateTime.now(), LocalDateTime.now().plusHours(24), user);
+
+        String link = "http://localhost:9090/auth/confirm?token=" + token;
+        emailSendService.sendEmail(
+                request.getEmail(),
+                buildEmail(request.getFirstName(),
+                        link));
+        confirmationTokenService.saveConfirmationToken(confirmationToken);
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", savedUser.getId());
@@ -66,7 +86,7 @@ public class ResgistrationServiceilmp implements RegistrationService {
         var savedUser = userRepository.save(user);
 
         String token = UUID.randomUUID().toString();
-        ConfirmationToken confirmationToken = new ConfirmationToken(token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
+        ConfirmationToken confirmationToken = new ConfirmationToken(token, LocalDateTime.now(), LocalDateTime.now().plusHours(24), user);
 
         String link = "http://localhost:9090/auth/confirm?token=" + token;
         emailSendService.sendEmail(
@@ -106,5 +126,27 @@ public class ResgistrationServiceilmp implements RegistrationService {
     private String buildEmail(String name, String link) {
         return "Bonjour : " + name + "<a href=\"" + link + "\">Activate Now</a>";
 
+    }
+
+    @Override
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),request.getPassword()
+                )
+        );
+
+        var user = userRepository.findUserByEmail(request.getEmail())
+                .orElseThrow();
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId());
+        claims.put("fullName", user.getFirstName() + " " + user.getLastName());
+
+
+        var jwtToken = jwtService.generateToken(user);
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .build();
     }
 }
