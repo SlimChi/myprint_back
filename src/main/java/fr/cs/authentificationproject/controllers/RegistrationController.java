@@ -13,20 +13,20 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Tag(name = "Admin")
+@Tag(name = "authentication")
 public class RegistrationController {
 
     private final ResgistrationServiceilmp userService;
 
 
-    @PostMapping("register/admin")
+    @PostMapping("/admin")
     public ResponseEntity<AuthenticationResponse> registerAdmin(@RequestBody UserDto user) {
 
         return ResponseEntity.ok(userService.registerAdmin(user));
 
     }
 
-    @PostMapping("register/user")
+    @PostMapping("/user")
     public ResponseEntity<AuthenticationResponse> registerUser(@RequestBody UserDto user) {
 
         return ResponseEntity.ok(userService.registerUser(user));

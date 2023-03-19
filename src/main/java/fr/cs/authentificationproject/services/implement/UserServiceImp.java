@@ -35,13 +35,6 @@ import java.util.stream.Collectors;
 public class UserServiceImp implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
-    private final ConfirmationTokenService confirmationTokenService;
-
-
-
-
 
     @Override
     public void delete(Integer id) {

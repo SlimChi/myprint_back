@@ -7,6 +7,7 @@ import fr.cs.authentificationproject.dto.UserDto;
 import fr.cs.authentificationproject.entities.Adresse;
 import fr.cs.authentificationproject.services.AdresseService;
 import fr.cs.authentificationproject.services.UserService;
+import fr.cs.authentificationproject.token.ConfirmationTokenService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class UserController {
 
     private final UserService userService;
     private final AdresseService adresseService;
+    private final ConfirmationTokenService confirmationTokenService;
 
     @GetMapping("/findAll")
     public ResponseEntity<List<UserDto>> findAll() {
@@ -54,6 +56,7 @@ public class UserController {
     public ResponseEntity<Void> delete(
             @PathVariable("id_user") Integer userId
     ) {
+
         userService.delete(userId);
         return ResponseEntity.accepted().build();
     }

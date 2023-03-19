@@ -42,7 +42,6 @@ public class ResgistrationServiceilmp implements RegistrationService {
     public AuthenticationResponse registerAdmin(UserDto request) {
 //        validator.validate(request);
 
-
         var user = UserDto.toEntity(request).builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())

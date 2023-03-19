@@ -70,7 +70,6 @@ public class UserDto {
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .password(user.getPassword())
-                .role(user.getRoles())
                 .build();
     }
 
